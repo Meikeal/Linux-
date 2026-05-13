@@ -84,7 +84,7 @@ analyze_basic_info() {
 
     write_output "  文件路径: ${LOG_FILE}"
     write_output "  文件大小: $(du -h "${LOG_FILE}" 2>/dev/null | cut -f1)"
-    TOTAL_LINES=$(wc -l < "${LOG_FILE}" 2>/dev/null | tr -d '[:space:]' || echo "0")
+    TOTAL_LINES=$(wc -l < "${LOG_FILE}" 2>/dev/null | tr -d '[:space:]')
     [[ -z "${TOTAL_LINES}" ]] && TOTAL_LINES=0
     write_output "  总行数: ${TOTAL_LINES}"
 
@@ -113,7 +113,7 @@ analyze_keywords() {
     local IFS='|'
     for keyword in ${LOG_PATTERNS}; do
         local count
-        count=$(grep -ci "${keyword}" "${LOG_FILE}" 2>/dev/null | head -1 || echo 0)
+        count=$( (grep -ci "${keyword}" "${LOG_FILE}" 2>/dev/null || true) | head -1)
         count=$(echo "${count}" | tr -d '[:space:]')
         [[ -z "${count}" ]] && count=0
         keyword_counts["${keyword}"]=${count}
@@ -180,7 +180,7 @@ analyze_time_distribution() {
 
     # 检查是否有带时间戳的日志行
     local timed_lines
-    timed_lines=$(grep -cE "^[A-Z][a-z]{2} [0-9]|^[0-9]{4}-[0-9]{2}-[0-9]{2}|^[A-Z][a-z]{2} [ :0-9]{11}" "${LOG_FILE}" 2>/dev/null || echo "0")
+    timed_lines=$( (grep -cE "^[A-Z][a-z]{2} [0-9]|^[0-9]{4}-[0-9]{2}-[0-9]{2}|^[A-Z][a-z]{2} [ :0-9]{11}" "${LOG_FILE}" 2>/dev/null || true) | head -1)
 
     if [[ ${timed_lines} -gt 0 ]]; then
         write_output "  异常事件按小时分布:"
@@ -207,7 +207,7 @@ analyze_patterns() {
 
     # SSH 登录失败
     local ssh_failed
-    ssh_failed=$(grep -ciE "Failed password|authentication failure|Failed publickey" "${LOG_FILE}" 2>/dev/null | head -1 || echo 0)
+    ssh_failed=$( (grep -ciE "Failed password|authentication failure|Failed publickey" "${LOG_FILE}" 2>/dev/null || true) | head -1)
     write_output "  SSH 登录失败次数: ${ssh_failed}"
     if [[ ${ssh_failed} -ge 10 ]]; then
         write_output "  [WARN] SSH 失败登录次数较多，可能存在暴力破解"
@@ -215,7 +215,7 @@ analyze_patterns() {
 
     # OOM 事件
     local oom_count
-    oom_count=$(grep -ciE "Out of memory|OOM|invoked oom-killer" "${LOG_FILE}" 2>/dev/null | head -1 || echo 0)
+    oom_count=$( (grep -ciE "Out of memory|OOM|invoked oom-killer" "${LOG_FILE}" 2>/dev/null || true) | head -1)
     write_output "  OOM (内存溢出) 事件: ${oom_count}"
     if [[ ${oom_count} -gt 0 ]]; then
         write_output "  [WARN] 检测到 OOM 事件，建议检查内存使用情况"
@@ -223,7 +223,7 @@ analyze_patterns() {
 
     # 磁盘错误
     local disk_err
-    disk_err=$(grep -ciE "I/O error|EXT.*error|read-only|block error" "${LOG_FILE}" 2>/dev/null | head -1 || echo 0)
+    disk_err=$( (grep -ciE "I/O error|EXT.*error|read-only|block error" "${LOG_FILE}" 2>/dev/null || true) | head -1)
     write_output "  磁盘 I/O 错误: ${disk_err}"
     if [[ ${disk_err} -gt 0 ]]; then
         write_output "  [WARN] 检测到磁盘 I/O 错误，建议检查磁盘健康状态"
@@ -231,7 +231,7 @@ analyze_patterns() {
 
     # 服务崩溃
     local service_crash
-    service_crash=$(grep -ciE "segfault|core dumped|oops|kernel BUG|panic" "${LOG_FILE}" 2>/dev/null | head -1 || echo 0)
+    service_crash=$( (grep -ciE "segfault|core dumped|oops|kernel BUG|panic" "${LOG_FILE}" 2>/dev/null || true) | head -1)
     write_output "  服务崩溃/内核错误: ${service_crash}"
     if [[ ${service_crash} -gt 0 ]]; then
         write_output "  [WARN] 检测到服务崩溃或内核错误，建议立即排查"
