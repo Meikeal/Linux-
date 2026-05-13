@@ -27,6 +27,7 @@ reports/*.html
 *.tmp
 *.bak
 *.log
+!samples/**/*.log
 
 # Large reference documents (original course materials)
 *.pdf
