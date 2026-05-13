@@ -32,3 +32,6 @@ reports/*.html
 *.pdf
 *.docx
 *.pptx
+
+# Claude Code internal
+.claude/
