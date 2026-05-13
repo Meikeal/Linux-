@@ -16,7 +16,16 @@ LOGS_DIR="${SCRIPT_DIR}/logs"
 SAMPLES_DIR="${SCRIPT_DIR}/samples"
 
 # 版本号
-VERSION="0.1.0"
+VERSION="0.4.0"
+
+# 检测 Python 解释器
+if command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+    PYTHON_BIN="python"
+else
+    PYTHON_BIN="python3"
+fi
 
 # 加载配置文件
 CONFIG_FILE="${CONFIG_DIR}/ops-assist.conf"
@@ -126,7 +135,7 @@ run_log_analyze() {
 run_diagnose() {
     print_info "开始生成诊断建议..."
     if [[ -f "${SCRIPTS_DIR}/diagnose.py" ]]; then
-        python3 "${SCRIPTS_DIR}/diagnose.py" "$@"
+        ${PYTHON_BIN} "${SCRIPTS_DIR}/diagnose.py" "$@"
     else
         print_error "诊断模块不存在: ${SCRIPTS_DIR}/diagnose.py"
         return 1
@@ -136,7 +145,7 @@ run_diagnose() {
 run_report() {
     print_info "开始生成巡检报告..."
     if [[ -f "${SCRIPTS_DIR}/report.py" ]]; then
-        python3 "${SCRIPTS_DIR}/report.py" "$@"
+        ${PYTHON_BIN} "${SCRIPTS_DIR}/report.py" "$@"
     else
         print_error "报告生成模块不存在: ${SCRIPTS_DIR}/report.py"
         return 1
