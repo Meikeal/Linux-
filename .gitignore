@@ -1,0 +1,34 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.eggs/
+
+# Virtual environments
+venv/
+.env/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Reports output (generated files)
+reports/*.md
+reports/*.html
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# Large reference documents (original course materials)
+*.pdf
+*.docx
+*.pptx
