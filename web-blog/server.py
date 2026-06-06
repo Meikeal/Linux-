@@ -149,18 +149,25 @@ def clamp_int(value, default, minimum, maximum):
 
 
 def memory_info_mb():
-    total = 0
-    available = 0
+    values = {}
     try:
         with open("/proc/meminfo", "r", encoding="utf-8") as f:
             for line in f:
-                if line.startswith("MemTotal:"):
-                    total = int(line.split()[1]) // 1024
-                elif line.startswith("MemAvailable:"):
-                    available = int(line.split()[1]) // 1024
+                key, raw = line.split(":", 1)
+                values[key] = int(raw.split()[0]) // 1024
     except (OSError, ValueError):
-        pass
-    return total, available
+        return 0, 0, 0
+
+    total = values.get("MemTotal", 0)
+    available = values.get("MemAvailable", 0)
+    buff_cache = (
+        values.get("Buffers", 0)
+        + values.get("Cached", 0)
+        + values.get("SReclaimable", 0)
+        - values.get("Shmem", 0)
+    )
+    free_style_used = max(total - values.get("MemFree", 0) - buff_cache, 0)
+    return total, available, free_style_used
 
 
 def cpu_load_worker(seconds, duty_percent):
@@ -398,8 +405,7 @@ class BlogHandler(BaseHTTPRequestHandler):
         writes = clamp_int(query.get("writes", ["3000"])[0], 3000, 100, 50000)
 
         cpu_count = os.cpu_count() or 1
-        total_mb, available_mb = memory_info_mb()
-        used_mb = max(total_mb - available_mb, 0) if total_mb and available_mb else 0
+        total_mb, available_mb, used_mb = memory_info_mb()
         desired_used_mb = int(total_mb * memory_target / 100) if total_mb else 0
         memory_alloc_mb = max(desired_used_mb - used_mb, 0)
         if memory_target:
