@@ -2,8 +2,8 @@
 """Threaded static file server for the deployed blog."""
 
 import argparse
-import functools
 import http.server
+import os
 import socketserver
 from pathlib import Path
 
@@ -20,10 +20,8 @@ def main():
     parser.add_argument("--directory", default=str(Path(__file__).resolve().parent))
     args = parser.parse_args()
 
-    handler = functools.partial(
-        http.server.SimpleHTTPRequestHandler,
-        directory=args.directory,
-    )
+    os.chdir(args.directory)
+    handler = http.server.SimpleHTTPRequestHandler
 
     with ThreadedTCPServer((args.host, args.port), handler) as server:
         print("Serving {} on {}:{}".format(args.directory, args.host, args.port), flush=True)
