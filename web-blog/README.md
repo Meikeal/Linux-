@@ -1,5 +1,7 @@
 # Meikeal Ops Blog
 
+Version: v1.3.0
+
 这是用于课程项目演示的个人 Web 博客站点。项目场景来自个人 Web 开发：
 
 1. 平时开发博客或小型 Web 项目。
@@ -9,8 +11,7 @@
 ## 本地预览
 
 ```bash
-cd web-blog
-python3 -m http.server 8080
+python3 server.py --host 127.0.0.1 --port 8080 --directory .
 ```
 
 访问：

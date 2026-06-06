@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 from html import escape
 
-VERSION = "1.0.0"
+VERSION = "1.3.0"
 
 CHECK_EXPLAIN = {
     "系统基本信息": (
