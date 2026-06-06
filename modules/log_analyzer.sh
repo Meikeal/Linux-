@@ -300,6 +300,10 @@ main() {
         mkdir -p "${out_dir}" 2>/dev/null || true
     fi
 
+    if [[ "${OUTPUT_FILE}" != "/dev/stdout" ]]; then
+        : > "${OUTPUT_FILE}"
+    fi
+
     # 写入报告头
     write_output "# 日志异常分析报告"
     write_output "> 生成时间: $(date '+%Y-%m-%d %H:%M:%S')"

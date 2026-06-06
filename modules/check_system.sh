@@ -158,8 +158,12 @@ check_disk() {
 
     if cmd_exists df; then
         write_output "  分区使用情况:"
-        df -h 2>/dev/null | grep -vE '^Filesystem|tmpfs|devtmpfs|efivarfs|snapfuse|squashfs|udev' | \
-        while read -r fs size used avail usage mount; do
+        df -hP 2>/dev/null | awk 'NR > 1 && $0 !~ /tmpfs|devtmpfs|efivarfs|snapfuse|squashfs|udev/ {
+            mount=$NF; usage=$(NF-1); avail=$(NF-2); used=$(NF-3); size=$(NF-4);
+            fs=$1; for (i=2; i<=NF-5; i++) fs=fs" "$i;
+            printf "%s\t%s\t%s\t%s\n", mount, used, size, usage;
+        }' | \
+        while IFS=$'\t' read -r mount used size usage; do
             write_output "    ${mount}: ${used}/${size} (${usage})"
 
             local usage_num="${usage%\%}"
@@ -179,8 +183,11 @@ check_disk() {
     # inode 使用情况
     write_output ""
     write_output "  Inode 使用情况:"
-    df -i 2>/dev/null | grep -vE '^Filesystem|tmpfs|devtmpfs|efivarfs|snapfuse|squashfs|udev' | \
-    while read -r fs inodes iused ifree iusage mount; do
+    df -iP 2>/dev/null | awk 'NR > 1 && $0 !~ /tmpfs|devtmpfs|efivarfs|snapfuse|squashfs|udev/ {
+        mount=$NF; iusage=$(NF-1);
+        printf "%s\t%s\n", mount, iusage;
+    }' | \
+    while IFS=$'\t' read -r mount iusage; do
         local iusage_num="${iusage%\%}"
         if [[ "${iusage_num}" =~ ^[0-9]+$ ]] && [[ ${iusage_num} -ge 80 ]]; then
             log_warn "Inode 使用率偏高: ${mount} (${iusage})"
@@ -324,6 +331,10 @@ main() {
         mkdir -p "${out_dir}" 2>/dev/null || true
     fi
 
+    if [[ "${OUTPUT_FILE}" != "/dev/stdout" ]]; then
+        : > "${OUTPUT_FILE}"
+    fi
+
     # 写入报告头
     write_output "# 系统状态巡检报告"
     write_output "> 生成时间: $(date '+%Y-%m-%d %H:%M:%S')"
@@ -347,7 +358,7 @@ main() {
     fi
 
     write_output ""
-    return ${ISSUES_FOUND}
+    return 0
 }
 
 # 如果直接执行此脚本
