@@ -21,8 +21,8 @@ DISK_CRITICAL="${DISK_CRITICAL_THRESHOLD:-90}"
 MEM_WARN="${MEM_WARN_THRESHOLD:-80}"
 MEM_CRITICAL="${MEM_CRITICAL_THRESHOLD:-90}"
 CPU_LOAD_WARN="${CPU_LOAD_WARN:-2.0}"
-WATCH_SERVICES="${WATCH_SERVICES:-ssh nginx apache2 docker}"
-WATCH_PORTS="${WATCH_PORTS:-22 80 443 3306 8080}"
+WATCH_SERVICES="${WATCH_SERVICES:-sshd ops-blog}"
+WATCH_PORTS="${WATCH_PORTS:-22 8080}"
 HEALTH_URLS="${HEALTH_URLS:-}"
 
 # 输出目标
@@ -307,14 +307,14 @@ check_network() {
 
     if cmd_exists ss; then
         local established listen time_wait
-        established=$(ss -tan state established 2>/dev/null | tail -n +2 | wc -l)
-        listen=$(ss -tan state listen 2>/dev/null | tail -n +2 | wc -l)
-        time_wait=$(ss -tan state time-wait 2>/dev/null | tail -n +2 | wc -l)
+        established=$((ss -tan state established 2>/dev/null || true) | tail -n +2 | wc -l)
+        listen=$((ss -tan state listen 2>/dev/null || true) | tail -n +2 | wc -l)
+        time_wait=$((ss -tan state time-wait 2>/dev/null || true) | tail -n +2 | wc -l)
         write_output "  TCP 连接: ESTABLISHED=${established}  LISTEN=${listen}  TIME_WAIT=${time_wait}"
     elif cmd_exists netstat; then
         local established listen
-        established=$(netstat -tan 2>/dev/null | grep ESTABLISHED | wc -l)
-        listen=$(netstat -tan 2>/dev/null | grep LISTEN | wc -l)
+        established=$((netstat -tan 2>/dev/null || true) | grep ESTABLISHED | wc -l)
+        listen=$((netstat -tan 2>/dev/null || true) | grep LISTEN | wc -l)
         write_output "  TCP 连接: ESTABLISHED=${established}  LISTEN=${listen}"
     else
         write_output "  网络信息: 无法获取"

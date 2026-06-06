@@ -240,10 +240,10 @@ MEM_CRITICAL_THRESHOLD=90
 CPU_LOAD_WARN=2.0
 
 # 需要监控的服务列表
-WATCH_SERVICES="ssh nginx ops-blog"
+WATCH_SERVICES="sshd ops-blog"
 
 # 需要监控的端口列表
-WATCH_PORTS="22 80 443 8080"
+WATCH_PORTS="22 8080"
 
 # Web 健康检查地址
 HEALTH_URLS="http://127.0.0.1:8080/healthz.txt"
