@@ -246,7 +246,10 @@ analyze_context() {
     write_output ""
 
     local first_anomaly_line
-    first_anomaly_line=$(grep -niE "${LOG_PATTERNS}" "${LOG_FILE}" 2>/dev/null | head -5 | cut -d: -f1 | head -1)
+    first_anomaly_line=$(awk -v pat="${LOG_PATTERNS}" '
+        BEGIN { IGNORECASE = 1 }
+        $0 ~ pat { print NR; exit }
+    ' "${LOG_FILE}" 2>/dev/null || true)
 
     if [[ -n "${first_anomaly_line}" ]]; then
         local start_line=$(( first_anomaly_line - 2 ))
