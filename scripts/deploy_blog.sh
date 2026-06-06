@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# deploy_blog.sh - 将 web-blog 静态博客部署为 Linux systemd 服务
+# deploy_blog.sh - 将 web-blog 动态博客部署为 Linux systemd 服务
 # =============================================================================
 
 set -euo pipefail
@@ -48,7 +48,7 @@ install_blog() {
         exit 1
     fi
 
-    print_info "部署博客文件到 ${DEPLOY_DIR}"
+    print_info "部署动态博客文件到 ${DEPLOY_DIR}"
     mkdir -p "${DEPLOY_DIR}"
     cp -R "${BLOG_SRC}/." "${DEPLOY_DIR}/"
 

@@ -4,7 +4,7 @@
 
 ops-assist 是一个 Linux 运维智能巡检与日志诊断助手。它面向个人 Web 开发和服务器部署场景：博客或 Web Demo 上线后，通过一条命令检查服务器资源、关键服务、端口、健康接口和系统日志，并生成可读报告。
 
-本项目的真实部署对象是个人技术博客 `Meikeal AI Notes`，部署在 CentOS 7.9 云服务器上，对外提供 HTTP 访问。
+本项目的真实部署对象是个人技术博客 `Meikeal AI Notes`，部署在 CentOS 7.9 云服务器上，对外提供 HTTP 访问。博客已从纯静态页面升级为 Python + SQLite 动态博客，支持文章检索、阅读统计、点赞、评论和运行统计。
 
 ## 2. 主入口模块：ops-assist
 
@@ -124,7 +124,7 @@ reports/
 
 功能：
 
-- 将 `web-blog/` 静态博客部署到 `/opt/ops-blog`。
+- 将 `web-blog/` 动态博客部署到 `/opt/ops-blog`。
 - 安装 systemd 服务 `ops-blog`。
 - 启动并设置开机自启。
 - 提供 `install`、`status`、`restart`、`stop` 等管理操作。
@@ -132,7 +132,8 @@ reports/
 实现方式：
 
 - 使用 Bash 复制博客文件。
-- 使用 Python 静态文件服务器提供 HTTP 服务。
+- 使用 Python 标准库实现 HTTP API 服务。
+- 使用 SQLite 保存文章、评论、点赞、访问统计和演示负载数据。
 - 使用 systemd 管理进程生命周期。
 
 运行示例：
@@ -143,7 +144,30 @@ sudo ./ops-assist deploy-blog status
 sudo ./ops-assist deploy-blog restart
 ```
 
-## 8. 配置文件：config/ops-assist.conf
+## 8. 动态博客接口：web-blog/server.py
+
+功能：
+
+- `/api/posts`：获取文章列表。
+- `/api/posts/<slug>`：获取文章详情并记录阅读次数。
+- `/api/posts/<slug>/like`：点赞文章并写入数据库。
+- `/api/posts/<slug>/comments`：读取或提交评论。
+- `/api/search?q=关键词`：按标题、标签、摘要、正文搜索文章。
+- `/api/stats`：查看文章数、阅读数、点赞数、评论数、请求数、平均响应耗时和数据库大小。
+- `/api/demo-load`：本机短时演示负载接口，用于答辩时制造可控 CPU 和数据库写入压力。
+
+演示负载只允许服务器本机访问，公网访问会被拒绝。这样可以用于课堂演示，但不会让外部用户随意压测服务器。
+
+运行示例：
+
+```bash
+curl "http://127.0.0.1/api/demo-load?seconds=8&writes=10000"
+./ops-assist all
+```
+
+这条命令会在 8 秒内执行 CPU 哈希循环，并向 SQLite 写入 10000 条演示数据。随后运行巡检，可以观察服务请求、数据库文件、CPU/日志等变化。
+
+## 9. 配置文件：config/ops-assist.conf
 
 核心配置：
 
@@ -163,15 +187,16 @@ MEM_WARN_THRESHOLD=80
 - `DISK_WARN_THRESHOLD`：磁盘告警阈值。
 - `MEM_WARN_THRESHOLD`：内存告警阈值。
 
-## 9. 推荐演示命令
+## 10. 推荐演示命令
 
 ```bash
 cd /opt/ops-assist-project
 curl http://127.0.0.1/healthz.txt
 systemctl status ops-blog --no-pager
 ss -tlnp | grep ':80'
+curl http://127.0.0.1/api/stats
+curl "http://127.0.0.1/api/demo-load?seconds=8&writes=10000"
 ./ops-assist all
 ls -lh reports/
 tail -n 60 reports/report_*.md
 ```
-

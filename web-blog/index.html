@@ -13,73 +13,104 @@
       <a class="brand" href="#top">Meikeal AI Notes</a>
       <div class="nav-links">
         <a href="#posts">文章</a>
-        <a href="#topics">专题</a>
+        <a href="#lab">实验台</a>
         <a href="#about">关于</a>
       </div>
     </nav>
     <section class="hero" id="top">
-      <p class="eyebrow">Deep Learning / PyTorch / AI Engineering</p>
-      <h1>记录深度学习实验、模型理解与工程部署的个人技术博客</h1>
+      <p class="eyebrow">Dynamic Blog / SQLite / AI Engineering</p>
+      <h1>记录深度学习实验、模型理解与工程部署的动态技术博客</h1>
       <p class="hero-copy">
-        这里整理我在学习和实践 AI 技术时的笔记：从卷积网络、Transformer、训练调参，到把模型 Demo 部署到 Linux 服务器后的稳定性观察。
+        博客支持文章检索、阅读统计、点赞评论和运行状态统计，后端使用 Python + SQLite 提供 API 服务，适合作为 Linux 巡检助手的真实监控对象。
       </p>
       <div class="hero-actions">
         <a class="button primary" href="#posts">查看文章</a>
-        <a class="button" href="#topics">浏览专题</a>
+        <a class="button" href="#lab">查看运行统计</a>
       </div>
     </section>
   </header>
 
   <main>
-    <section class="status-band" id="topics" aria-label="博客专题">
+    <section class="status-band" id="lab" aria-label="博客运行统计">
       <div>
         <span class="status-dot"></span>
-        <strong>模型训练</strong>
-        <p>记录数据预处理、损失函数、学习率、过拟合观察和实验复盘。</p>
+        <strong>文章阅读</strong>
+        <p><span id="statViews">0</span> 次阅读请求已记录到数据库。</p>
       </div>
       <div>
-        <strong>模型理解</strong>
-        <p>梳理 CNN、RNN、Attention、Transformer 等核心结构的直觉与细节。</p>
+        <strong>互动数据</strong>
+        <p><span id="statLikes">0</span> 次点赞，<span id="statComments">0</span> 条评论。</p>
       </div>
       <div>
-        <strong>工程部署</strong>
-        <p>整理 Linux 部署、服务监控、日志排查和 Web Demo 发布过程。</p>
+        <strong>服务请求</strong>
+        <p><span id="statRequests">0</span> 次 API/页面请求，平均 <span id="statAvg">0</span> ms。</p>
       </div>
     </section>
 
     <section class="section" id="posts">
-      <div class="section-heading">
-        <p class="eyebrow">Posts</p>
-        <h2>最新技术笔记</h2>
+      <div class="section-heading split-heading">
+        <div>
+          <p class="eyebrow">Posts</p>
+          <h2>最新技术笔记</h2>
+        </div>
+        <form class="search-box" id="searchForm">
+          <input id="searchInput" type="search" placeholder="搜索 CNN、PyTorch、部署..." autocomplete="off">
+          <button class="button primary" type="submit">搜索</button>
+        </form>
       </div>
       <div class="post-grid" id="postGrid"></div>
+    </section>
+
+    <section class="section article-section" id="reader">
+      <article class="reader-panel">
+        <div class="post-meta">
+          <span id="readerTag">文章</span>
+          <time id="readerDate">2026-06-06</time>
+        </div>
+        <h2 id="readerTitle">选择一篇文章开始阅读</h2>
+        <p id="readerContent">点击上方文章卡片后，这里会从后端 API 读取正文，同时记录阅读次数。</p>
+        <div class="reader-actions">
+          <button class="button primary" id="likeButton" type="button">点赞</button>
+          <span id="readerStats">阅读 0 次 / 点赞 0 次</span>
+        </div>
+      </article>
+
+      <aside class="comment-panel">
+        <h3>评论</h3>
+        <form id="commentForm">
+          <input id="commentName" type="text" placeholder="昵称">
+          <textarea id="commentMessage" placeholder="写下你的想法"></textarea>
+          <button class="button primary" type="submit">提交评论</button>
+        </form>
+        <div id="commentList" class="comment-list"></div>
+      </aside>
     </section>
 
     <section class="section deploy-section" id="about">
       <div class="section-heading">
         <p class="eyebrow">About</p>
-        <h2>我的学习路线</h2>
+        <h2>为什么需要监控</h2>
       </div>
       <ol class="timeline">
         <li>
           <span>01</span>
           <div>
-            <h3>先理解模型结构</h3>
-            <p>把论文和课程中的概念拆成可复现的小实验，先跑通，再分析每个模块的作用。</p>
+            <h3>动态请求会带来服务压力</h3>
+            <p>搜索、阅读详情、点赞和评论都会访问后端 API，并产生数据库读写。</p>
           </div>
         </li>
         <li>
           <span>02</span>
           <div>
-            <h3>再观察训练过程</h3>
-            <p>记录训练集、验证集、损失曲线、准确率和错误样本，避免只看最终指标。</p>
+            <h3>数据库状态影响用户体验</h3>
+            <p>评论和统计数据依赖 SQLite，如果磁盘空间、权限或服务异常，交互功能会直接受影响。</p>
           </div>
         </li>
         <li>
           <span>03</span>
           <div>
-            <h3>最后落到工程部署</h3>
-            <p>把模型 Demo 或个人博客部署到 Linux 服务器，并用巡检脚本确认端口、服务、资源和日志状态。</p>
+            <h3>巡检报告能快速定位风险</h3>
+            <p>ops-assist 会检查服务、端口、健康接口、资源和日志，帮助判断动态博客是否稳定运行。</p>
           </div>
         </li>
       </ol>
@@ -88,10 +119,9 @@
 
   <footer class="footer">
     <span>Meikeal AI Notes</span>
-    <span>Deep learning notes, experiments and deployment practice.</span>
+    <span>Dynamic deep learning blog backed by SQLite.</span>
   </footer>
 
-  <script src="assets/posts.js"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>

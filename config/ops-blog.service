@@ -1,5 +1,5 @@
 [Unit]
-Description=Meikeal Ops Blog static web service
+Description=Meikeal AI Notes dynamic blog service
 After=network.target
 
 [Service]
