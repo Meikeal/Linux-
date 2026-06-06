@@ -52,9 +52,7 @@ install_blog() {
     mkdir -p "${DEPLOY_DIR}"
     cp -R "${BLOG_SRC}/." "${DEPLOY_DIR}/"
 
-    if id www-data >/dev/null 2>&1; then
-        chown -R www-data:www-data "${DEPLOY_DIR}"
-    fi
+    chmod -R a+rX "${DEPLOY_DIR}"
 
     print_info "安装 systemd 服务: ${SERVICE_NAME}"
     sed "s/8080/${PORT}/g" "${SERVICE_SRC}" > "/etc/systemd/system/${SERVICE_NAME}.service"
