@@ -11,7 +11,7 @@
 5. 查看端口：执行 `ss -tlnp | grep ':80'`。
 6. 健康检查：执行 `curl http://127.0.0.1/healthz.txt`，解释返回 `ok` 表示服务器本机服务可访问。
 7. 动态交互：在网页中搜索文章、点赞、提交评论，再执行 `curl http://127.0.0.1/api/stats` 查看统计。
-8. 演示负载：执行 `curl "http://127.0.0.1/api/demo-load?seconds=8&writes=10000"`，制造短时 CPU 和数据库写入压力。
+8. 演示负载：执行 `curl "http://127.0.0.1/api/demo-load?seconds=90&cpu=75&memory=70&writes=20000" >/tmp/demo-load.log &`，制造短时 CPU、内存和数据库写入压力。
 9. 完整巡检：执行 `./ops-assist all`。
 10. 展示报告：打开或输出 `reports/report_*.md`，重点展示“巡检项目说明表”。
 11. 总结：说明项目把动态博客、数据库交互、部署、巡检、日志诊断、报告生成串成了完整闭环。
@@ -47,8 +47,9 @@ systemctl status ops-blog --no-pager
 ss -tlnp | grep ':80'
 curl http://127.0.0.1/healthz.txt
 curl http://127.0.0.1/api/stats
-curl "http://127.0.0.1/api/demo-load?seconds=8&writes=10000"
+curl "http://127.0.0.1/api/demo-load?seconds=90&cpu=75&memory=70&writes=20000" >/tmp/demo-load.log &
 ./ops-assist all
+cat /tmp/demo-load.log
 ls -lh reports/
 tail -n 80 reports/report_*.md
 ```

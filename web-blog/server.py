@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 import mimetypes
+import multiprocessing
 import os
 import sqlite3
 import time
@@ -137,6 +138,63 @@ def init_db(root_dir):
 
 def now_text():
     return time.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def clamp_int(value, default, minimum, maximum):
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        number = default
+    return min(max(number, minimum), maximum)
+
+
+def memory_info_mb():
+    total = 0
+    available = 0
+    try:
+        with open("/proc/meminfo", "r", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("MemTotal:"):
+                    total = int(line.split()[1]) // 1024
+                elif line.startswith("MemAvailable:"):
+                    available = int(line.split()[1]) // 1024
+    except (OSError, ValueError):
+        pass
+    return total, available
+
+
+def cpu_load_worker(seconds, duty_percent):
+    deadline = time.time() + seconds
+    window = 0.1
+    busy_for = window * (duty_percent / 100.0)
+    digest = b"ops-assist-cpu-load"
+    loops = 0
+
+    while time.time() < deadline:
+        start = time.time()
+        while time.time() - start < busy_for:
+            digest = hashlib.sha256(digest + str(loops).encode("ascii")).digest()
+            loops += 1
+        rest = window - busy_for
+        if rest > 0:
+            time.sleep(rest)
+
+
+def memory_load_worker(target_mb, seconds):
+    chunks = []
+    deadline = time.time() + seconds
+    chunk_size = 1024 * 1024
+
+    for _ in range(max(target_mb, 0)):
+        block = bytearray(chunk_size)
+        block[0] = 1
+        block[-1] = 1
+        chunks.append(block)
+
+    while time.time() < deadline:
+        for block in chunks[::128] or chunks[:1]:
+            block[0] = (block[0] + 1) % 255
+        time.sleep(0.5)
 
 
 class BlogHandler(BaseHTTPRequestHandler):
@@ -334,32 +392,57 @@ class BlogHandler(BaseHTTPRequestHandler):
             self.send_json({"error": "demo load is only available from localhost"}, HTTPStatus.FORBIDDEN)
             return
 
-        seconds = min(max(int(query.get("seconds", ["4"])[0]), 1), 15)
-        writes = min(max(int(query.get("writes", ["3000"])[0]), 100), 20000)
-        deadline = time.time() + seconds
-        loops = 0
+        seconds = clamp_int(query.get("seconds", ["30"])[0], 30, 1, 180)
+        cpu_target = clamp_int(query.get("cpu", ["70"])[0], 70, 0, 95)
+        memory_target = clamp_int(query.get("memory", ["0"])[0], 0, 0, 80)
+        writes = clamp_int(query.get("writes", ["3000"])[0], 3000, 100, 50000)
+
+        cpu_count = os.cpu_count() or 1
+        total_mb, available_mb = memory_info_mb()
+        used_mb = max(total_mb - available_mb, 0) if total_mb and available_mb else 0
+        desired_used_mb = int(total_mb * memory_target / 100) if total_mb else 0
+        memory_alloc_mb = max(desired_used_mb - used_mb, 0)
+        if memory_target:
+            memory_alloc_mb = min(memory_alloc_mb, max(int(total_mb * 0.75), 256))
+
+        workers = []
+        for _ in range(cpu_count if cpu_target else 0):
+            proc = multiprocessing.Process(target=cpu_load_worker, args=(seconds, cpu_target))
+            proc.start()
+            workers.append(proc)
+
+        memory_proc = None
+        if memory_alloc_mb > 0:
+            memory_proc = multiprocessing.Process(target=memory_load_worker, args=(memory_alloc_mb, seconds))
+            memory_proc.start()
+            workers.append(memory_proc)
+
         digest = b"ops-assist-demo-load"
-
-        while time.time() < deadline:
-            digest = hashlib.sha256(digest + str(loops).encode("ascii")).digest()
-            loops += 1
-
         with db_connect() as conn:
             for i in range(writes):
-                payload = hashlib.sha256(digest + str(i).encode("ascii")).hexdigest()
+                digest = hashlib.sha256(digest + str(i).encode("ascii")).digest()
+                payload = hashlib.sha256(digest).hexdigest()
                 conn.execute(
                     "INSERT INTO demo_load(payload, created_at) VALUES (?, ?)",
                     (payload, now_text()),
                 )
             conn.commit()
 
+        for proc in workers:
+            proc.join()
+
         self.send_json(
             {
                 "ok": True,
                 "seconds": seconds,
-                "cpu_loops": loops,
+                "cpu_target_percent": cpu_target,
+                "cpu_workers": cpu_count if cpu_target else 0,
+                "memory_target_percent": memory_target,
+                "memory_alloc_mb": memory_alloc_mb,
+                "memory_total_mb": total_mb,
+                "memory_used_before_mb": used_mb,
                 "db_writes": writes,
-                "message": "短时演示负载已完成，可立即运行 ./ops-assist all 查看资源和日志变化。",
+                "message": "目标资源演示负载已完成。演示时建议把 curl 放到后台运行，再立即执行 ./ops-assist check 或 ./ops-assist all。",
             }
         )
 

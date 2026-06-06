@@ -161,11 +161,12 @@ sudo ./ops-assist deploy-blog restart
 运行示例：
 
 ```bash
-curl "http://127.0.0.1/api/demo-load?seconds=8&writes=10000"
-./ops-assist all
+curl "http://127.0.0.1/api/demo-load?seconds=90&cpu=75&memory=70&writes=20000" >/tmp/demo-load.log &
+./ops-assist check
+cat /tmp/demo-load.log
 ```
 
-这条命令会在 8 秒内执行 CPU 哈希循环，并向 SQLite 写入 10000 条演示数据。随后运行巡检，可以观察服务请求、数据库文件、CPU/日志等变化。
+这条命令会在 90 秒内把 CPU 目标占用控制在约 75%，并按服务器总内存计算临时分配内存，使整体内存使用接近 70%，同时向 SQLite 写入 20000 条演示数据。`curl` 放到后台运行后，立刻执行巡检，就能在报告中看到更明显的资源压力。负载结束后，临时内存会自动释放。
 
 ## 9. 配置文件：config/ops-assist.conf
 
@@ -195,8 +196,9 @@ curl http://127.0.0.1/healthz.txt
 systemctl status ops-blog --no-pager
 ss -tlnp | grep ':80'
 curl http://127.0.0.1/api/stats
-curl "http://127.0.0.1/api/demo-load?seconds=8&writes=10000"
+curl "http://127.0.0.1/api/demo-load?seconds=90&cpu=75&memory=70&writes=20000" >/tmp/demo-load.log &
 ./ops-assist all
+cat /tmp/demo-load.log
 ls -lh reports/
 tail -n 60 reports/report_*.md
 ```
