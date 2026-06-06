@@ -64,6 +64,15 @@ install_blog() {
     systemctl --no-pager --full status "${SERVICE_NAME}" || true
     echo ""
     print_info "本机验证: curl http://127.0.0.1:${PORT}/healthz.txt"
+    for _ in 1 2 3 4 5; do
+        if curl -fsS "http://127.0.0.1:${PORT}/healthz.txt" >/dev/null 2>&1; then
+            print_success "健康检查通过: http://127.0.0.1:${PORT}/healthz.txt"
+            return
+        fi
+        sleep 1
+    done
+    print_error "健康检查暂未通过，请稍后执行: curl http://127.0.0.1:${PORT}/healthz.txt"
+    return 1
 }
 
 status_blog() {

@@ -9,6 +9,15 @@ FAILED=0
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+if python3 --version >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+elif python --version >/dev/null 2>&1; then
+    PYTHON_BIN="python"
+else
+    echo "  [FAIL] 未找到 Python 解释器"
+    exit 1
+fi
+
 log_test() {
     local name="$1"
     local result="$2"
@@ -113,7 +122,7 @@ fi
 
 # 测试 12: 诊断建议运行测试
 if [[ -f /tmp/test_ops_check.log ]]; then
-    python "${SCRIPT_DIR}/scripts/diagnose.py" --input /tmp/test_ops_check.log --output /tmp/test_ops_diag.md > /dev/null 2>&1 || true
+    "${PYTHON_BIN}" "${SCRIPT_DIR}/scripts/diagnose.py" --input /tmp/test_ops_check.log --output /tmp/test_ops_diag.md > /dev/null 2>&1 || true
     if [[ -s /tmp/test_ops_diag.md ]] && grep -q "诊断建议报告" /tmp/test_ops_diag.md; then
         log_test "诊断建议模块可运行" "PASS"
     else
@@ -125,7 +134,7 @@ fi
 
 # 测试 13: 报告生成运行测试
 if [[ -f /tmp/test_ops_check.log && -f /tmp/test_ops_log.log && -f /tmp/test_ops_diag.md ]]; then
-    python "${SCRIPT_DIR}/scripts/report.py" -i /tmp/test_ops_check.log /tmp/test_ops_log.log /tmp/test_ops_diag.md -o /tmp/test_ops_report.md > /dev/null 2>&1 || true
+    "${PYTHON_BIN}" "${SCRIPT_DIR}/scripts/report.py" -i /tmp/test_ops_check.log /tmp/test_ops_log.log /tmp/test_ops_diag.md -o /tmp/test_ops_report.md > /dev/null 2>&1 || true
     if [[ -s /tmp/test_ops_report.md ]] && grep -q "Linux 运维智能巡检报告" /tmp/test_ops_report.md; then
         log_test "报告生成模块可运行" "PASS"
     else
