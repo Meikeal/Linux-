@@ -123,7 +123,7 @@ DIAGNOSIS_RULES = {
         ],
     },
     "zombie_process": {
-        "pattern": r"僵尸进程",
+        "pattern": r"发现\s+\d+\s+个僵尸进程",
         "suggestion": [
             "发现僵尸进程，可能由父进程未正确处理子进程退出导致",
             "建议:",

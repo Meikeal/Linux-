@@ -12,11 +12,9 @@ CONFIG_FILE="${SCRIPT_DIR}/config/ops-assist.conf"
 # 加载配置中的日志关键词
 LOG_PATTERNS="${LOG_PATTERNS:-error|failed|denied|timeout|disconnect|refused|panic|OOM|segfault}"
 
-# 输出目标
-OUTPUT_FILE="${1:-/dev/stdout}"
-
-# 要分析的日志文件（通过 -f 或第二个参数指定）
-LOG_FILE="${2:-}"
+# 输出目标和日志文件由 main 统一解析
+OUTPUT_FILE="/dev/stdout"
+LOG_FILE=""
 
 # 统计结果
 TOTAL_LINES=0
@@ -271,7 +269,7 @@ analyze_context() {
 # =============================================================================
 main() {
     # 解析参数
-    local args=()
+    local positional_count=0
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -f|--log-file)
@@ -283,9 +281,10 @@ main() {
                 shift 2
                 ;;
             *)
-                if [[ -z "${OUTPUT_FILE// }" ]] || [[ "${OUTPUT_FILE}" == "/dev/stdout" ]] && [[ "$1" != "/dev/stdout" ]]; then
+                positional_count=$((positional_count + 1))
+                if [[ ${positional_count} -eq 1 ]]; then
                     OUTPUT_FILE="$1"
-                elif [[ -z "${LOG_FILE}" ]]; then
+                elif [[ ${positional_count} -eq 2 ]]; then
                     LOG_FILE="$1"
                 fi
                 shift
