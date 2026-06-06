@@ -1,20 +1,26 @@
 window.BLOG_POSTS = [
   {
-    title: "为什么我需要部署后巡检",
+    title: "从 CNN 到 Vision Transformer：图像模型的归纳偏置",
     date: "2026-06-06",
-    tag: "背景",
-    summary: "个人 Web 项目上线后，最怕端口没开、服务退出、磁盘被日志撑满。巡检工具把这些检查变成一条命令。"
+    tag: "深度学习",
+    summary: "CNN 通过局部连接和平移等变性把图像先验写进网络结构，ViT 则把图像切成 token 后交给自注意力学习全局关系。两类模型的差异，本质上是先验强弱和数据规模之间的取舍。"
   },
   {
-    title: "用 systemd 管理静态博客服务",
+    title: "训练模型时如何判断过拟合正在发生",
     date: "2026-06-06",
-    tag: "部署",
-    summary: "通过 Python http.server 提供静态文件服务，用 systemd 负责开机自启、状态查询和日志归档。"
+    tag: "模型训练",
+    summary: "当训练集损失持续下降，而验证集损失停止下降甚至上升时，通常说明模型开始记忆训练样本。这个阶段可以尝试数据增强、正则化、早停或降低模型复杂度。"
   },
   {
-    title: "ops-assist 如何巡检博客服务器",
+    title: "PyTorch 实验记录：学习率为什么影响收敛速度",
     date: "2026-06-06",
-    tag: "巡检",
-    summary: "巡检项包括 8080 端口、ops-blog 服务、健康检查 URL、系统资源、异常日志和最终 Markdown 报告。"
+    tag: "PyTorch",
+    summary: "学习率过小会让训练收敛很慢，过大则可能在最优点附近震荡。通过观察 loss 曲线和梯度变化，可以更直观地理解 warmup、cosine decay 和 step decay 的作用。"
+  },
+  {
+    title: "把 AI Demo 部署到 Linux 服务器后的检查清单",
+    date: "2026-06-06",
+    tag: "工程部署",
+    summary: "模型 Demo 上线后，除了页面能打开，还需要检查 systemd 服务状态、监听端口、磁盘容量、内存占用和错误日志。稳定的工程环境是模型结果可展示、可复现的前提。"
   }
 ];
