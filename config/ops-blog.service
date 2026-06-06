@@ -1,0 +1,17 @@
+[Unit]
+Description=Meikeal Ops Blog static web service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/ops-blog
+ExecStart=/usr/bin/python3 -m http.server 8080 --bind 0.0.0.0
+Restart=always
+RestartSec=5
+User=www-data
+Group=www-data
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

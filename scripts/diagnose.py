@@ -111,6 +111,17 @@ DIAGNOSIS_RULES = {
             "  4. 检查防火墙规则: iptables -L -n",
         ],
     },
+    "health_check_failed": {
+        "pattern": r"健康检查失败:\s*(\S+)",
+        "suggestion": [
+            "Web 健康检查失败，博客服务可能不可访问或返回内容异常",
+            "建议:",
+            "  1. 使用 'systemctl status ops-blog' 查看博客服务状态",
+            "  2. 使用 'curl http://127.0.0.1:8080/healthz.txt' 验证健康端点",
+            "  3. 使用 'journalctl -u ops-blog -n 80' 查看服务日志",
+            "  4. 检查防火墙或云服务器安全组是否放行 8080/80/443 端口",
+        ],
+    },
     "anomaly_high": {
         "pattern": r"异常占比偏高",
         "suggestion": [

@@ -23,6 +23,7 @@ MEM_CRITICAL="${MEM_CRITICAL_THRESHOLD:-90}"
 CPU_LOAD_WARN="${CPU_LOAD_WARN:-2.0}"
 WATCH_SERVICES="${WATCH_SERVICES:-ssh nginx apache2 docker}"
 WATCH_PORTS="${WATCH_PORTS:-22 80 443 3306 8080}"
+HEALTH_URLS="${HEALTH_URLS:-}"
 
 # 输出目标
 OUTPUT_FILE="${1:-/dev/stdout}"
@@ -321,6 +322,41 @@ check_network() {
 }
 
 # =============================================================================
+# 9. Web 健康检查
+# =============================================================================
+check_health_urls() {
+    log_section "Web 健康检查"
+
+    if [[ -z "${HEALTH_URLS// }" ]]; then
+        write_output "  未配置 HEALTH_URLS，跳过 HTTP 健康检查"
+        return
+    fi
+
+    if ! cmd_exists curl && ! cmd_exists wget; then
+        write_output "  健康检查: 无法获取（curl/wget 均不可用）"
+        return
+    fi
+
+    write_output "  配置健康检查地址: ${HEALTH_URLS}"
+    write_output ""
+
+    for url in ${HEALTH_URLS}; do
+        local response=""
+        if cmd_exists curl; then
+            response=$(curl -fsS --max-time 5 "${url}" 2>/dev/null || true)
+        else
+            response=$(wget -q -T 5 -O - "${url}" 2>/dev/null || true)
+        fi
+
+        if [[ "${response}" == *"ok"* ]]; then
+            log_ok "健康检查通过: ${url}"
+        else
+            log_warn "健康检查失败: ${url}"
+        fi
+    done
+}
+
+# =============================================================================
 # 主函数
 # =============================================================================
 main() {
@@ -348,6 +384,7 @@ main() {
     check_ports
     check_services
     check_network
+    check_health_urls
 
     # 汇总
     log_section "巡检汇总"

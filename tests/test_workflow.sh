@@ -76,7 +76,21 @@ else
     log_test "报告生成模块存在" "FAIL: 文件不存在"
 fi
 
-# 测试 8: 系统巡检运行测试
+# 测试 8: 个人博客文件存在
+if [[ -f "${SCRIPT_DIR}/web-blog/index.html" && -f "${SCRIPT_DIR}/web-blog/healthz.txt" ]]; then
+    log_test "个人博客首页和健康检查文件存在" "PASS"
+else
+    log_test "个人博客首页和健康检查文件存在" "FAIL: 博客文件缺失"
+fi
+
+# 测试 9: 博客部署脚本存在
+if [[ -f "${SCRIPT_DIR}/scripts/deploy_blog.sh" ]]; then
+    log_test "博客部署脚本存在" "PASS"
+else
+    log_test "博客部署脚本存在" "FAIL: 文件不存在"
+fi
+
+# 测试 10: 系统巡检运行测试
 bash "${SCRIPT_DIR}/modules/check_system.sh" /tmp/test_ops_check.log > /dev/null 2>&1 || true
 if [[ -s /tmp/test_ops_check.log ]] && grep -q "系统状态巡检报告" /tmp/test_ops_check.log; then
     log_test "系统巡检模块可运行" "PASS"
@@ -84,7 +98,7 @@ else
     log_test "系统巡检模块可运行" "FAIL: 输出文件未生成或内容异常"
 fi
 
-# 测试 9: 日志分析运行测试（使用样例日志）
+# 测试 11: 日志分析运行测试（使用样例日志）
 sample_log="${SCRIPT_DIR}/samples/sample_logs/syslog_sample.log"
 if [[ -f "${sample_log}" ]]; then
     bash "${SCRIPT_DIR}/modules/log_analyzer.sh" /tmp/test_ops_log.log -f "${sample_log}" > /dev/null 2>&1 || true
@@ -97,7 +111,7 @@ else
     log_test "日志分析模块可运行" "SKIP: 样例日志不存在"
 fi
 
-# 测试 10: 诊断建议运行测试
+# 测试 12: 诊断建议运行测试
 if [[ -f /tmp/test_ops_check.log ]]; then
     python "${SCRIPT_DIR}/scripts/diagnose.py" --input /tmp/test_ops_check.log --output /tmp/test_ops_diag.md > /dev/null 2>&1 || true
     if [[ -s /tmp/test_ops_diag.md ]] && grep -q "诊断建议报告" /tmp/test_ops_diag.md; then
@@ -109,7 +123,7 @@ else
     log_test "诊断建议模块可运行" "SKIP: 缺少巡检结果"
 fi
 
-# 测试 11: 报告生成运行测试
+# 测试 13: 报告生成运行测试
 if [[ -f /tmp/test_ops_check.log && -f /tmp/test_ops_log.log && -f /tmp/test_ops_diag.md ]]; then
     python "${SCRIPT_DIR}/scripts/report.py" -i /tmp/test_ops_check.log /tmp/test_ops_log.log /tmp/test_ops_diag.md -o /tmp/test_ops_report.md > /dev/null 2>&1 || true
     if [[ -s /tmp/test_ops_report.md ]] && grep -q "Linux 运维智能巡检报告" /tmp/test_ops_report.md; then

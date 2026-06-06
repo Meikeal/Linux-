@@ -21,7 +21,7 @@
 
 ## 项目简介
 
-**ops-assist** 是一个命令行巡检与日志诊断工具，将系统状态采集、日志异常提取、诊断建议和报告生成串联为一条自动化流水线。适用于 Linux 实验环境、WSL/Ubuntu 测试环境、小型 Web 服务主机和日志存储目录的日常维护。
+**ops-assist** 是一个面向个人 Web 开发部署场景的命令行巡检与日志诊断工具。本项目同时包含一个轻量静态博客 `web-blog`，用于模拟我平时完成 Web 项目后部署到 Linux 服务器的真实场景；部署后再由 ops-assist 对服务、端口、健康检查地址、系统资源和日志异常进行巡检。
 
 ### 项目目标
 
@@ -33,7 +33,7 @@
 
 ### 服务对象
 
-需要维护 Linux 实验环境、课程服务器或个人小型部署环境的学生开发小组。典型场景：课程实验机、WSL/Ubuntu 测试环境、小型 Web 服务主机。
+服务对象是我自己：平时做 Web 开发并把个人博客、小型页面或课程项目部署到 Linux 服务器的开发者。典型场景是：本地完成博客站点开发后，将站点部署为 Linux systemd 服务，再定期检查服务是否存活、端口是否监听、日志是否异常、磁盘和内存是否正常。
 
 ### 解决的实际问题
 
@@ -42,14 +42,14 @@
 | 问题 | 现有做法 | 痛点 |
 |------|----------|------|
 | 磁盘被日志/缓存占满 | 手动执行 `df -h`，逐目录排查 | 命令分散，容易遗漏 |
-| 服务异常退出未被发现 | 偶尔检查 `systemctl status` | 无法及时发现 |
+| 博客服务异常退出未被发现 | 偶尔检查 `systemctl status ops-blog` | 无法及时发现 |
 | SSH 登录失败持续增加 | 偶尔查看 `/var/log/auth.log` | 缺乏统计和趋势分析 |
-| 端口被异常进程占用 | 手动 `ss -tlnp` 逐端口检查 | 重复劳动 |
+| Web 端口未监听或被占用 | 手动 `ss -tlnp` 逐端口检查 | 重复劳动 |
 | 系统负载升高原因不明 | 分别执行 `top`、`free`、`ps` | 信息分散，关联困难 |
 
 ### 为什么需要本项目
 
-Linux 原生命令虽然强大，但信息分散在不同命令中，输出格式不直观，缺少关联分析，无法自动化定时执行。**ops-assist** 将高频运维操作串联为一条命令，自动标记异常、生成诊断建议、输出可存档的报告。
+Linux 原生命令虽然强大，但信息分散在不同命令中，输出格式不直观，缺少关联分析，无法自动化定时执行。对个人 Web 项目来说，部署完成不代表服务长期稳定，因此 **ops-assist** 将博客部署后的高频巡检操作串联为一条命令，自动标记异常、生成诊断建议、输出可存档的报告。
 
 ---
 
@@ -91,6 +91,25 @@ ls reports/
 cat reports/report_*.md
 ```
 
+### 博客部署演示
+
+项目内置一个个人博客站点 `web-blog/`，可部署为 Linux 服务 `ops-blog`：
+
+```bash
+# 本地预览
+cd web-blog
+python3 -m http.server 8080
+
+# Linux 服务器部署（在项目根目录）
+sudo ./ops-assist deploy-blog install
+
+# 验证健康检查
+curl http://127.0.0.1:8080/healthz.txt
+
+# 对部署后的博客服务器进行巡检
+./ops-assist all
+```
+
 ---
 
 ## 功能模块
@@ -108,6 +127,7 @@ cat reports/report_*.md
 | 进程状态 | CPU/内存 TOP5、僵尸进程 | `ps` |
 | 端口状态 | 配置端口监听状态 | `ss`, `netstat` |
 | 服务状态 | systemd 服务运行状态 | `systemctl` |
+| Web 健康检查 | 博客健康检查 URL 是否可访问 | `curl`, `wget` |
 
 ### 2. 日志异常分析 (`ops-assist log`)
 
@@ -144,6 +164,22 @@ cat reports/report_*.md
 ./scripts/setup_cron.sh uninstall
 ```
 
+### 6. 个人博客部署 (`ops-assist deploy-blog`)
+
+将 `web-blog/` 部署到 Linux 服务器 `/opt/ops-blog`，安装为 `ops-blog` systemd 服务并监听 `8080` 端口：
+
+```bash
+sudo ./ops-assist deploy-blog install
+./ops-assist deploy-blog status
+./ops-assist deploy-blog logs
+```
+
+部署后，巡检配置默认关注：
+
+- `ops-blog` 服务状态
+- `8080` 端口监听状态
+- `http://127.0.0.1:8080/healthz.txt` 健康检查
+
 ---
 
 ## 项目结构
@@ -157,9 +193,12 @@ Linux-/
 ├── scripts/
 │   ├── report.py               # 报告生成（Markdown/HTML）（~250行）
 │   ├── diagnose.py             # 诊断建议生成（~240行）
-│   └── setup_cron.sh           # crontab 定时任务配置（~230行）
+│   ├── setup_cron.sh           # crontab 定时任务配置（~230行）
+│   └── deploy_blog.sh          # 个人博客 Linux 部署脚本
 ├── config/
-│   └── ops-assist.conf         # 告警阈值与监控项配置
+│   ├── ops-assist.conf         # 告警阈值与监控项配置
+│   └── ops-blog.service        # 博客 systemd 服务模板
+├── web-blog/                   # 可部署的个人静态博客站点
 ├── samples/
 │   └── sample_logs/
 │       ├── README.md           # 样例日志说明
@@ -201,10 +240,13 @@ MEM_CRITICAL_THRESHOLD=90
 CPU_LOAD_WARN=2.0
 
 # 需要监控的服务列表
-WATCH_SERVICES="ssh nginx apache2 docker"
+WATCH_SERVICES="ssh nginx ops-blog"
 
 # 需要监控的端口列表
-WATCH_PORTS="22 80 443 3306 8080"
+WATCH_PORTS="22 80 443 8080"
+
+# Web 健康检查地址
+HEALTH_URLS="http://127.0.0.1:8080/healthz.txt"
 
 # 日志分析关键词（正则表达式）
 LOG_PATTERNS="error|failed|denied|timeout|disconnect|refused|panic|OOM|segfault"

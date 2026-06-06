@@ -1,0 +1,276 @@
+:root {
+  color-scheme: light;
+  --bg: #f5f8fb;
+  --panel: #ffffff;
+  --text: #1f2a36;
+  --muted: #64748b;
+  --line: #d8e1ec;
+  --blue: #1d73be;
+  --navy: #123047;
+  --green: #2e8b57;
+  --orange: #f28e2b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", "Segoe UI", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-header {
+  background: linear-gradient(135deg, #e8f2fb 0%, #ffffff 62%);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.hero {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 82px 24px 96px;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  max-width: 740px;
+  margin-bottom: 18px;
+  color: var(--navy);
+  font-size: 48px;
+  line-height: 1.08;
+}
+
+.hero-copy {
+  max-width: 680px;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.75;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.button {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.button.primary {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 34px 24px 70px;
+}
+
+.status-band {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--line);
+}
+
+.status-band > div {
+  background: var(--panel);
+  padding: 22px;
+}
+
+.status-band strong {
+  color: var(--navy);
+}
+
+.status-band p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.section {
+  padding-top: 64px;
+}
+
+.section-heading h2 {
+  margin-bottom: 24px;
+  color: var(--navy);
+  font-size: 30px;
+}
+
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.post-card {
+  min-height: 220px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.post-meta {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.post-card h3 {
+  margin: 22px 0 12px;
+  color: var(--navy);
+  font-size: 20px;
+}
+
+.post-card p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.deploy-section {
+  padding-bottom: 32px;
+}
+
+.timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 16px;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 18px;
+  align-items: start;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.timeline span {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e9f4ff;
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.timeline h3 {
+  margin-bottom: 8px;
+  color: var(--navy);
+}
+
+.timeline p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 24px 42px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+@media (max-width: 760px) {
+  .nav,
+  .footer,
+  .hero-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  h1 {
+    font-size: 34px;
+  }
+
+  .status-band,
+  .post-grid {
+    grid-template-columns: 1fr;
+  }
+}

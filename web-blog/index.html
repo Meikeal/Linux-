@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meikeal Ops Blog</title>
+  <meta name="description" content="个人 Web 开发、Linux 部署和运维巡检记录博客">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="#top">Meikeal Ops Blog</a>
+      <div class="nav-links">
+        <a href="#posts">文章</a>
+        <a href="#deploy">部署</a>
+        <a href="#monitor">巡检</a>
+      </div>
+    </nav>
+    <section class="hero" id="top">
+      <p class="eyebrow">Web Development · Linux Deploy · Ops Assist</p>
+      <h1>记录我的 Web 项目部署和服务器巡检过程</h1>
+      <p class="hero-copy">
+        这个博客用于模拟真实的个人 Web 项目：开发完成后部署到 Linux 服务器，
+        再通过 ops-assist 检查端口、服务、日志和系统资源。
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="#posts">查看文章</a>
+        <a class="button" href="healthz.txt">健康检查</a>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="status-band" id="monitor" aria-label="服务状态">
+      <div>
+        <span class="status-dot"></span>
+        <strong>健康检查端点</strong>
+        <p>/healthz.txt 用于部署后快速验证服务是否可访问。</p>
+      </div>
+      <div>
+        <strong>默认端口</strong>
+        <p>8080，可通过 systemd 服务或 nginx 反向代理暴露。</p>
+      </div>
+      <div>
+        <strong>巡检工具</strong>
+        <p>ops-assist 监控 ops-blog 服务、8080 端口和系统状态。</p>
+      </div>
+    </section>
+
+    <section class="section" id="posts">
+      <div class="section-heading">
+        <p class="eyebrow">Posts</p>
+        <h2>部署与运维笔记</h2>
+      </div>
+      <div class="post-grid" id="postGrid"></div>
+    </section>
+
+    <section class="section deploy-section" id="deploy">
+      <div class="section-heading">
+        <p class="eyebrow">Deploy Flow</p>
+        <h2>从开发到巡检的闭环</h2>
+      </div>
+      <ol class="timeline">
+        <li>
+          <span>01</span>
+          <div>
+            <h3>开发博客站点</h3>
+            <p>使用静态 HTML/CSS/JS，避免服务器额外安装复杂依赖。</p>
+          </div>
+        </li>
+        <li>
+          <span>02</span>
+          <div>
+            <h3>部署到 Linux 服务器</h3>
+            <p>通过 deploy_blog.sh 拷贝文件、安装 systemd 服务并监听 8080。</p>
+          </div>
+        </li>
+        <li>
+          <span>03</span>
+          <div>
+            <h3>运行 ops-assist 巡检</h3>
+            <p>检查服务、端口、健康 URL、磁盘、进程和日志异常。</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Meikeal Ops Blog</span>
+    <span>Built for Linux deployment inspection with ops-assist.</span>
+  </footer>
+
+  <script src="assets/posts.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
