@@ -10,7 +10,7 @@ BLOG_SRC="${SCRIPT_DIR}/web-blog"
 SERVICE_SRC="${SCRIPT_DIR}/config/ops-blog.service"
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/ops-blog}"
 SERVICE_NAME="${SERVICE_NAME:-ops-blog}"
-PORT="${PORT:-8080}"
+PORT="${PORT:-80}"
 
 print_info() {
     echo "[INFO] $1"
@@ -111,7 +111,7 @@ show_help() {
 环境变量:
   DEPLOY_DIR      默认 /opt/ops-blog
   SERVICE_NAME    默认 ops-blog
-  PORT            默认 8080
+  PORT            默认 80
 
 示例:
   sudo ./scripts/deploy_blog.sh install

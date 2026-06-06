@@ -243,10 +243,10 @@ CPU_LOAD_WARN=2.0
 WATCH_SERVICES="sshd ops-blog"
 
 # 需要监控的端口列表
-WATCH_PORTS="22 8080"
+WATCH_PORTS="22 80"
 
 # Web 健康检查地址
-HEALTH_URLS="http://127.0.0.1:8080/healthz.txt"
+HEALTH_URLS="http://127.0.0.1/healthz.txt"
 
 # 日志分析关键词（正则表达式）
 LOG_PATTERNS="error|failed|denied|timeout|disconnect|refused|panic|OOM|segfault"

@@ -15,8 +15,8 @@ python3 -m http.server 8080
 
 访问：
 
-- 首页：`http://127.0.0.1:8080/`
-- 健康检查：`http://127.0.0.1:8080/healthz.txt`
+- 本地首页：`http://127.0.0.1:8080/`
+- 本地健康检查：`http://127.0.0.1:8080/healthz.txt`
 
 ## Linux 部署
 
@@ -30,12 +30,12 @@ sudo ./scripts/deploy_blog.sh install
 
 ```bash
 systemctl status ops-blog
-curl http://127.0.0.1:8080/healthz.txt
+curl http://127.0.0.1/healthz.txt
 ./ops-assist all
 ```
 
 `ops-assist` 默认会关注：
 
 - `ops-blog` 服务状态
-- `8080` 端口监听状态
-- `http://127.0.0.1:8080/healthz.txt` 健康检查
+- `80` 端口监听状态
+- `http://127.0.0.1/healthz.txt` 健康检查

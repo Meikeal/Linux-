@@ -32,7 +32,7 @@
 
 - 如果只用公网 IP + 端口访问，可以先不买域名。
 - 如果要绑定域名并使用 80/443 长期公开访问，国内服务器通常需要备案。
-- 8080 端口通常需要在云平台防火墙/安全组中手动放行。
+- 80 或 8080 端口通常需要在云平台防火墙/安全组中手动放行。本项目默认使用 80 端口。
 
 ### 方案 B：Oracle Cloud Always Free
 
@@ -49,7 +49,7 @@
 SSH 用户名：root 或 ubuntu
 登录方式：密码 / 私钥
 系统版本：Ubuntu 22.04 / Ubuntu 24.04 / 其他
-是否已放行端口：22、8080、80、443
+是否已放行端口：22、80、8080、443
 ```
 
 如果是私钥登录，请把私钥文件保存到本机，并告诉我路径。不要在聊天里直接粘贴私钥正文。
@@ -64,15 +64,15 @@ sudo apt install -y git python3 curl
 git clone https://github.com/Meikeal/Linux-.git
 cd Linux-
 sudo ./ops-assist deploy-blog install
-curl http://127.0.0.1:8080/healthz.txt
+curl http://127.0.0.1/healthz.txt
 ./ops-assist all
 ```
 
 公网访问：
 
 ```text
-http://服务器公网IP:8080/
-http://服务器公网IP:8080/healthz.txt
+http://服务器公网IP/
+http://服务器公网IP/healthz.txt
 ```
 
 ## 巡检验证
@@ -89,7 +89,7 @@ bash tests/test_workflow.sh
 重点检查：
 
 - `ops-blog` 服务是否运行
-- `8080` 端口是否监听
+- `80` 端口是否监听
 - `healthz.txt` 是否返回 `ok`
 - `reports/` 是否生成 Markdown 报告
 - `tests/test_workflow.sh` 是否全部通过
@@ -98,12 +98,12 @@ bash tests/test_workflow.sh
 
 ### 公网打不开
 
-检查云平台防火墙/安全组是否放行 8080。
+检查云平台防火墙/安全组是否放行 80。
 
 ```bash
-curl http://127.0.0.1:8080/healthz.txt
+curl http://127.0.0.1/healthz.txt
 systemctl status ops-blog
-ss -tlnp | grep 8080
+ss -tlnp | grep ':80'
 ```
 
 ### 服务启动失败
@@ -113,10 +113,10 @@ journalctl -u ops-blog -n 80 --no-pager
 sudo systemctl restart ops-blog
 ```
 
-### 想改成 80 端口
+### 想改成 8080 端口
 
-可以把 `PORT=80` 传给部署脚本，或后续配置 nginx 反向代理。
+可以把 `PORT=8080` 传给部署脚本，或后续配置 nginx 反向代理。
 
 ```bash
-sudo PORT=80 ./ops-assist deploy-blog install
+sudo PORT=8080 ./ops-assist deploy-blog install
 ```
