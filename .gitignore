@@ -41,3 +41,7 @@ logs/*.txt
 
 # Claude Code internal
 .claude/
+
+# Local defense materials, not source code
+答辩材料/
+本地答辩材料/

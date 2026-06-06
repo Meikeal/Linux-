@@ -21,7 +21,7 @@
 
 ## 项目简介
 
-**ops-assist** 是一个面向个人 Web 开发部署场景的命令行巡检与日志诊断工具。本项目同时包含一个轻量静态博客 `web-blog`，用于模拟我平时完成 Web 项目后部署到 Linux 服务器的真实场景；部署后再由 ops-assist 对服务、端口、健康检查地址、系统资源和日志异常进行巡检。
+**ops-assist** 是一个面向个人 Web 开发部署场景的命令行巡检与日志诊断工具。本项目同时包含一个可部署的动态博客 `web-blog`，用于模拟我平时完成 Web 项目后部署到 Linux 服务器的真实场景；部署后再由 ops-assist 对服务、端口、健康检查地址、系统资源和日志异常进行巡检。
 
 ### 项目目标
 
@@ -96,15 +96,14 @@ cat reports/report_*.md
 项目内置一个个人博客站点 `web-blog/`，可部署为 Linux 服务 `ops-blog`：
 
 ```bash
-# 本地预览
-cd web-blog
-python3 -m http.server 8080
+# 本地预览动态博客
+python3 web-blog/server.py --host 127.0.0.1 --port 8080 --directory web-blog
 
 # Linux 服务器部署（在项目根目录）
 sudo ./ops-assist deploy-blog install
 
 # 验证健康检查
-curl http://127.0.0.1:8080/healthz.txt
+curl http://127.0.0.1/healthz.txt
 
 # 对部署后的博客服务器进行巡检
 ./ops-assist all
@@ -166,7 +165,7 @@ curl http://127.0.0.1:8080/healthz.txt
 
 ### 6. 个人博客部署 (`ops-assist deploy-blog`)
 
-将 `web-blog/` 部署到 Linux 服务器 `/opt/ops-blog`，安装为 `ops-blog` systemd 服务并监听 `8080` 端口：
+将 `web-blog/` 部署到 Linux 服务器 `/opt/ops-blog`，安装为 `ops-blog` systemd 服务并监听 `80` 端口：
 
 ```bash
 sudo ./ops-assist deploy-blog install
@@ -177,8 +176,8 @@ sudo ./ops-assist deploy-blog install
 部署后，巡检配置默认关注：
 
 - `ops-blog` 服务状态
-- `8080` 端口监听状态
-- `http://127.0.0.1:8080/healthz.txt` 健康检查
+- `80` 端口监听状态
+- `http://127.0.0.1/healthz.txt` 健康检查
 
 ---
 
@@ -198,7 +197,7 @@ Linux-/
 ├── config/
 │   ├── ops-assist.conf         # 告警阈值与监控项配置
 │   └── ops-blog.service        # 博客 systemd 服务模板
-├── web-blog/                   # 可部署的个人静态博客站点
+├── web-blog/                   # 可部署的个人动态博客站点
 ├── samples/
 │   └── sample_logs/
 │       ├── README.md           # 样例日志说明
